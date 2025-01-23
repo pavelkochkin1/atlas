@@ -1,0 +1,1 @@
+from routers.relationships.relationships import relationships_router
