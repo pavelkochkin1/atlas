@@ -1,4 +1,4 @@
-# Atlas - Система управления знаниями о данных
+# ATLAS — Guide for Data Voyagers
 
 ## Описание проекта
 
