@@ -1,0 +1,91 @@
+services:
+  atlas_backend:
+      image: atlas_backend:dev
+      build:
+        dockerfile: backend/Dockerfile
+      container_name: atlas_backend
+      ports:
+        - "8073:8073/tcp"
+      networks:
+        - atlas_backend
+      depends_on:
+        neo4j:
+          condition: service_healthy
+
+  agents:
+    image: agents:dev
+    build:
+      dockerfile: agents/Dockerfile
+    container_name: agents
+    ports:
+      - "8053:8053/tcp"
+    networks:
+      - atlas_backend
+    depends_on:
+      - neo4j
+      - atlas_backend
+
+  atlas-frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    container_name: atlas-frontend
+    ports:
+      - "3000:80"
+    networks:
+      - atlas_backend
+
+  neo4j:
+    image: neo4j:5.15.0
+    container_name: neo4j
+    ports:
+      - "7474:7474"    # HTTP API
+      - "7687:7687"    # Bolt протокол
+    environment:
+      NEO4J_AUTH: "neo4j/${NEO4J_PASSWORD}"  # Замените "password" на ваш надежный пароль
+      NEO4J_dbms_memory_pagecache_size: "512M"  # Настройка памяти для кэширования
+      NEO4J_dbms_memory_heap_initial__size: "1G"  # Начальный размер кучи
+      NEO4J_dbms_memory_heap_max__size: "2G"      # Максимальный размер кучи
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_apoc_export_file_enabled: true
+      NEO4J_apoc_import_file_enabled: true
+      NEO4J_apoc_import_file_use__neo4j__config: true
+      NEO4J_dbms_security_procedures_unrestricted: apoc.*
+      NEO4J_dbms_security_procedures_allowlist: apoc.*
+    volumes:
+      - neo4j_data:/data          # Хранение данных базы данных
+      - neo4j_logs:/logs          # Хранение логов
+      - neo4j_import:/var/lib/neo4j/import   # Каталог для импортируемых файлов
+      - neo4j_plugins:/plugins    # Каталог для плагинов
+    restart: unless-stopped       # Перезапуск контейнера при сбоях
+    networks:
+      - atlas_backend
+    healthcheck:
+      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "${NEO4J_PASSWORD}", "RETURN 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+
+  sources_examples:
+    image: sources_examples:dev
+    build:
+      dockerfile: sources_examples/Dockerfile
+    container_name: sources_examples
+    ports:
+      - "8043:8043/tcp"
+    networks:
+      - atlas_backend
+    depends_on:
+      - neo4j
+
+volumes:
+  neo4j_data:
+  neo4j_logs:
+  neo4j_import:
+  neo4j_plugins:
+
+networks:
+  atlas_backend:
+    driver: bridge
