@@ -27,3 +27,4 @@ repos:
     hooks:
       - id: flake8
         args: ['--config', 'setup.cfg']
+        exclude: sources_examples/gitlab

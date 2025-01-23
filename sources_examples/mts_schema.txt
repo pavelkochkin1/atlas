@@ -1,0 +1,5 @@
+/data/gr/cp/users
+/data/gr/pml/data
+/data/kion/film_views
+/data/kion/users
+/data/stroki/readings

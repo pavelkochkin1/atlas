@@ -1,0 +1,18 @@
+Email:
+    weasley@mts.ru
+    rickman@mts.ru
+    granger@mts.ru
+    potter@mts.ru
+    kochkin@mts.ru
+    shatrov@mts.ru
+
+Industry:
+    Golden record
+    KION
+    Strocki
+
+Team:
+    Person Modeling Lab
+    Customer Profile
+    Kion Analytics
+    Strocki Analytics
